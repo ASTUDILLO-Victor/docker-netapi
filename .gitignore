@@ -1,0 +1,47 @@
+# Build
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# NuGet
+packages/
+*.nupkg
+
+# EF Core
+Migrations/*.Designer.cs
+
+# Publicación
+publish/
+
+# Archivos temporales
+*.tmp
+*.temp
+
+# Configuración local
+appsettings.Development.json
+
+# Secrets
+secrets.json
+
+# Claude
+.claude/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
