@@ -10,4 +10,6 @@ public interface ITurnoService
     List<TurnoResponseDTO> ObtenerPorPaciente(int pacienteId);
     TurnoResponseDTO Agregar(TurnoCreateDTO dto);
     TurnoResponseDTO? CambiarEstado(int id, string estado);
+
+    List<TurnoResponseDTO> BuscarPorFecha(DateTime fecha);
 }

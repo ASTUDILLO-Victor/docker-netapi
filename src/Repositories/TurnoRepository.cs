@@ -17,6 +17,7 @@ public class TurnoRepository : ITurnoRepository
     public List<Turno> ObtenerTodos()
     {
         return _context.Turnos
+            .AsNoTracking()
             .Include(t => t.Medico)
             .Include(t => t.Paciente)
             .ToList();
@@ -25,6 +26,7 @@ public class TurnoRepository : ITurnoRepository
     public Turno? ObtenerPorId(int id)
     {
         return _context.Turnos
+            .AsNoTracking()
             .Include(t => t.Medico)
             .Include(t => t.Paciente)
             .FirstOrDefault(t => t.Id == id);
@@ -33,6 +35,7 @@ public class TurnoRepository : ITurnoRepository
     public List<Turno> ObtenerPorMedico(int medicoId)
     {
         return _context.Turnos
+            .AsNoTracking()
             .Include(t => t.Medico)
             .Include(t => t.Paciente)
             .Where(t => t.MedicoId == medicoId)
@@ -42,6 +45,7 @@ public class TurnoRepository : ITurnoRepository
     public List<Turno> ObtenerPorPaciente(int pacienteId)
     {
         return _context.Turnos
+            .AsNoTracking()
             .Include(t => t.Medico)
             .Include(t => t.Paciente)
             .Where(t => t.PacienteId == pacienteId)
@@ -69,4 +73,52 @@ public class TurnoRepository : ITurnoRepository
         _context.SaveChanges();
         return turno;
     }
+
+    // Buscar turnos por fecha usando SQL directo
+public List<Turno> BuscarPorFecha(DateTime fecha)
+{
+    return _context.Turnos
+        .FromSqlRaw(
+            "SELECT * FROM \"Turnos\" WHERE DATE(\"Fecha\") = DATE({0})", 
+            fecha)
+        .Include(t => t.Medico)
+        .Include(t => t.Paciente)
+        .ToList();
+}
+
+public List<Turno> ObtenerConFiltros(int? medicoId = null, int? pacienteId = null, DateTime? fecha = null)
+{
+    // Query base
+    string sql = "SELECT * FROM \"Turnos\" WHERE 1=1";
+    var parametros = new List<object>();
+    int index = 0;
+
+    // Agregar filtros dinámicamente
+    if (medicoId.HasValue)
+    {
+        sql += $" AND \"MedicoId\" = {{{index}}}";
+        parametros.Add(medicoId.Value);
+        index++;
+    }
+
+    if (pacienteId.HasValue)
+    {
+        sql += $" AND \"PacienteId\" = {{{index}}}";
+        parametros.Add(pacienteId.Value);
+        index++;
+    }
+
+    if (fecha.HasValue)
+    {
+        sql += $" AND DATE(\"Fecha\") = DATE({{{index}}})";
+        parametros.Add(fecha.Value);
+        index++;
+    }
+
+    return _context.Turnos
+        .FromSqlRaw(sql, parametros.ToArray())
+        .Include(t => t.Medico)
+        .Include(t => t.Paciente)
+        .ToList();
+}
 }

@@ -17,6 +17,7 @@ public class UsuarioRepository : IUsuarioRepository
     public Usuario? ObtenerPorId(int id)
     {
         return _context.Usuarios
+            .AsNoTracking()
             .Include(u => u.RefreshTokens)
             .Include(u => u.UsuarioRoles)
                 .ThenInclude(ur => ur.Rol)
@@ -26,6 +27,7 @@ public class UsuarioRepository : IUsuarioRepository
     public Usuario? ObtenerPorEmail(string email)
     {
         return _context.Usuarios
+            .AsNoTracking()
             .Include(u => u.UsuarioRoles)
                 .ThenInclude(ur => ur.Rol)
             .FirstOrDefault(u => u.Email == email);
