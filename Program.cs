@@ -82,7 +82,24 @@ if (app.Environment.IsDevelopment())
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
+
+    const int maxRetries = 10;
+
+    for (int i = 0; i < maxRetries; i++)
+    {
+        try
+        {
+            db.Database.Migrate();
+            break;
+        }
+        catch
+        {
+            if (i == maxRetries - 1)
+                throw;
+
+            Thread.Sleep(5000);
+        }
+    }
 }
 app.UseHttpsRedirection();
 app.UseMiddleware<TurnosApi.Middleware.ErrorHandlerMiddleware>();

@@ -11,4 +11,6 @@ public interface ITurnoRepository
     bool ExisteTurnoEnFecha(int medicoId, DateTime fecha);
     Turno Agregar(Turno turno);
     Turno Actualizar(Turno turno);
+
+    List<Turno> BuscarPorFecha(DateTime fecha);
 }

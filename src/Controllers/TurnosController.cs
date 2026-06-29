@@ -87,4 +87,12 @@ public class TurnosController : ControllerBase
             throw new Exception("Usuario no autenticado");
         return int.Parse(claim.Value);
     }
+
+    [HttpGet("fecha")]
+    [Authorize(Policy = "ver_turnos")]
+    public IActionResult BuscarPorFecha([FromQuery] DateTime fecha)
+    {
+        var turnos = _service.BuscarPorFecha(fecha);
+        return Ok(turnos);
+    }
 }

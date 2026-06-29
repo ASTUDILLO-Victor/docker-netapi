@@ -100,4 +100,10 @@ public class TurnoService : ITurnoService
             PacienteNombre = $"{turno.Paciente?.Nombre} {turno.Paciente?.Apellido}"
         };
     }
+
+    public List<TurnoResponseDTO> BuscarPorFecha(DateTime fecha)
+{
+    return _repository.BuscarPorFecha(fecha)
+        .Select(MapearTurno).ToList();
+}
 }
