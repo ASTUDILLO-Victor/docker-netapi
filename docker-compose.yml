@@ -3,35 +3,40 @@ services:
   db:
     image: postgres:16
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: turnodb
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5433:5432"
+      - "${DB_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   api:
     build: .
     ports:
-      - "9090:8080"
+      - "${API_PORT}:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=turnodb;Username=postgres;Password=123456
+      - ConnectionStrings__DefaultConnection=Host=db;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASS}
     depends_on:
-      - db
-      
+      db:
+        condition: service_healthy    
+
   pgadmin:
     image: dpage/pgadmin4
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASS}
     ports:
       - "5050:80"
     depends_on:
-      - db
+      db:
+        condition: service_healthy    
 
 volumes:
   postgres_data:
-
-  
