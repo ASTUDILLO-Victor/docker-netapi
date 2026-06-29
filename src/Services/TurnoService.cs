@@ -45,21 +45,21 @@ public class TurnoService : ITurnoService
     {
         // Validar que la fecha no sea en el pasado
         if (dto.Fecha < DateTime.UtcNow)
-            throw new Exception("No se puede crear un turno en el pasado");
+            throw new ArgumentException("No se puede crear un turno en el pasado");
 
         // Validar que el médico existe
         var medico = _usuarioRepository.ObtenerPorId(dto.MedicoId);
         if (medico == null)
-            throw new Exception($"No existe médico con Id {dto.MedicoId}");
+            throw new KeyNotFoundException($"No existe médico con Id {dto.MedicoId}");
 
         // Validar que el paciente existe
         var paciente = _usuarioRepository.ObtenerPorId(dto.PacienteId);
         if (paciente == null)
-            throw new Exception($"No existe paciente con Id {dto.PacienteId}");
+            throw new KeyNotFoundException($"No existe paciente con Id {dto.PacienteId}");
 
         // Validar que el médico no tenga turno en esa fecha
         if (_repository.ExisteTurnoEnFecha(dto.MedicoId, dto.Fecha))
-            throw new Exception("El médico ya tiene un turno en esa fecha y hora");
+            throw new ArgumentException("El médico ya tiene un turno en esa fecha y hora");
 
         var turno = new Turno
         {

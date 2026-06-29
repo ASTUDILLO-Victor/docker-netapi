@@ -85,6 +85,7 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 app.UseHttpsRedirection();
+app.UseMiddleware<TurnosApi.Middleware.ErrorHandlerMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

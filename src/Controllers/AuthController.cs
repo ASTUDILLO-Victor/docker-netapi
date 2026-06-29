@@ -20,16 +20,16 @@ public class AuthController : ControllerBase
     [HttpPost("registro")]
     public IActionResult Registro([FromBody] RegistroDTO dto)
     {
-        try
-        {
+        // try
+        // {
             var resultado = _service.Registro(dto);
             return Ok(resultado);
-        }
-        catch (Exception ex)
-        {
-            // Muestra el error completo incluyendo el inner exception
-            return BadRequest(ex.InnerException?.Message ?? ex.Message);
-        }
+        // }
+        // catch (Exception ex)
+        // {
+        //     // Muestra el error completo incluyendo el inner exception
+        //     return BadRequest(ex.InnerException?.Message ?? ex.Message);
+        // }
     }
 
     [HttpPost("login")]

@@ -57,15 +57,10 @@ public class TurnosController : ControllerBase
     [Authorize(Policy = "gestionar_turnos")]
     public IActionResult Agregar([FromBody] TurnoCreateDTO dto)
     {
-        try
-        {
-            var creado = _service.Agregar(dto);
-            return Created($"/api/turnos/{creado.Id}", creado);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+       
+        var creado = _service.Agregar(dto);
+        return Created($"/api/turnos/{creado.Id}", creado);
+       
     }
 
     [HttpPut("{id}/estado")]

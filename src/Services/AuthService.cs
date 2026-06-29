@@ -39,10 +39,10 @@ public class AuthService : IAuthService
     public AuthResponseDTO Registro(RegistroDTO dto)
     {
         if (dto.Password != dto.ConfirmarPassword)
-            throw new Exception("Las contraseñas no coinciden");
+            throw new ArgumentException("Las contraseñas no coinciden");
 
         if (_usuarioRepository.ExisteEmail(dto.Email))
-            throw new Exception("El email ya está registrado");
+            throw new ArgumentException("El email ya está registrado");
 
         var usuario = new Usuario
         {
@@ -60,7 +60,7 @@ public class AuthService : IAuthService
         // Asignar rol Cliente desde BD
         var rolCliente = _rolRepository.ObtenerPorNombre("Cliente");
         if (rolCliente == null)
-            throw new Exception("Rol Cliente no encontrado en BD");
+            throw new ArgumentException("Rol Cliente no encontrado en BD");
 
         _usuarioRolRepository.Agregar(new UsuarioRol
         {
@@ -77,13 +77,13 @@ public class AuthService : IAuthService
     {
         var usuario = _usuarioRepository.ObtenerPorEmail(dto.Email);
         if (usuario == null)
-            throw new Exception("Email o contraseña incorrectos");
+            throw new UnauthorizedAccessException("Email o contraseña incorrectos");
 
         if (!usuario.Activo)
-            throw new Exception("Usuario desactivado. Contacte al administrador");
+            throw new UnauthorizedAccessException("Usuario desactivado. Contacte al administrador");
 
         if (!BCrypt.Net.BCrypt.Verify(dto.Password, usuario.PasswordHash))
-            throw new Exception("Email o contraseña incorrectos");
+            throw new UnauthorizedAccessException("Email o contraseña incorrectos");
 
         usuario.UltimoLogin = DateTime.UtcNow;
         _usuarioRepository.Actualizar(usuario);
@@ -112,17 +112,17 @@ public class AuthService : IAuthService
         var rt = _refreshTokenRepository.ObtenerPorToken(refreshToken);
 
         if (rt == null)
-            throw new Exception("Refresh token inválido");
+            throw new ArgumentException("Refresh token inválido");
 
         if (rt.EstaRevocado)
-            throw new Exception("Refresh token revocado");
+            throw new ArgumentException("Refresh token revocado");
 
         if (rt.FechaExpiracion < DateTime.Now)
-            throw new Exception("Refresh token expirado");
+            throw new ArgumentException("Refresh token expirado");
 
         var usuario = _usuarioRepository.ObtenerPorId(rt.UsuarioId);
         if (usuario == null)
-            throw new Exception("Usuario no encontrado");
+            throw new KeyNotFoundException("Usuario no encontrado");
 
         // Revocar el refresh token actual
         _refreshTokenRepository.Revocar(rt);
@@ -135,7 +135,7 @@ public class AuthService : IAuthService
     {
         var usuario = _usuarioRepository.ObtenerPorId(usuarioId);
         if (usuario == null)
-            throw new Exception("Usuario no encontrado");
+            throw new KeyNotFoundException("Usuario no encontrado");
 
         return MapearPerfil(usuario);
     }
@@ -144,7 +144,7 @@ public class AuthService : IAuthService
     {
         var usuario = _usuarioRepository.ObtenerPorId(usuarioId);
         if (usuario == null)
-            throw new Exception("Usuario no encontrado");
+            throw new KeyNotFoundException("Usuario no encontrado");
 
         usuario.Nombre = dto.Nombre;
         usuario.Apellido = dto.Apellido;
@@ -157,14 +157,14 @@ public class AuthService : IAuthService
     public void CambiarPassword(int usuarioId, CambiarPasswordDTO dto)
     {
         if (dto.NuevoPassword != dto.ConfirmarPassword)
-            throw new Exception("Las contraseñas no coinciden");
+            throw new ArgumentException("Las contraseñas no coinciden");
 
         var usuario = _usuarioRepository.ObtenerPorId(usuarioId);
         if (usuario == null)
-            throw new Exception("Usuario no encontrado");
+            throw new KeyNotFoundException("Usuario no encontrado");
 
         if (!BCrypt.Net.BCrypt.Verify(dto.PasswordActual, usuario.PasswordHash))
-            throw new Exception("La contraseña actual es incorrecta");
+            throw new UnauthorizedAccessException("La contraseña actual es incorrecta");
 
         usuario.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NuevoPassword);
         _usuarioRepository.Actualizar(usuario);
@@ -180,7 +180,7 @@ public class AuthService : IAuthService
     {
         var usuario = _usuarioRepository.ObtenerPorId(id);
         if (usuario == null)
-            throw new Exception("Usuario no encontrado");
+            throw new KeyNotFoundException("Usuario no encontrado");
 
         usuario.Activo = false;
         _usuarioRepository.Actualizar(usuario);
